@@ -1,0 +1,4 @@
+type,value,pulse_name,tags,priority,created,description,is_private,is_global,soc_action,mitre_hint
+IPv4,185.130.5.253,Emotet C2,"malware,trojan",HIGH,2024-01-15,Emotet C2 server,False,True,🚨 BLOCK IMMEDIATELY - Create alert rule,Review TTPs
+IPv4,45.142.120.5,Cobalt Strike,"c2,malware",HIGH,2024-01-16,Cobalt Strike beacon,False,True,🚨 BLOCK IMMEDIATELY - Create alert rule,T1071 - Application Layer Protocol
+URL,hxxp://malware-site[.]com/payload.exe,Malware Distribution,"trojan,downloader",HIGH,2024-01-16,Malicious payload,False,True,🚨 BLOCK IMMEDIATELY - Create alert rule,Review TTPs

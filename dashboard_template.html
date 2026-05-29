@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SOC Threat Intel Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th {
+            background: #333;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .high { background: #dc3545; color: white; padding: 3px 8px; border-radius: 3px; display: inline-block; }
+        .medium { background: #fd7e14; color: white; padding: 3px 8px; border-radius: 3px; display: inline-block; }
+        .low { background: #28a745; color: white; padding: 3px 8px; border-radius: 3px; display: inline-block; }
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+        }
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+        .filter-active {
+            background: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>🛡️ SOC Threat Intelligence Dashboard</h1>
+    <p>Last updated: {{ stats.last_updated }}</p>
+</div>
+
+<div class="stats">
+    <div class="stat"><div class="stat-number">{{ stats.total_iocs }}</div><div>Total IOCs</div></div>
+    <div class="stat"><div class="stat-number" style="color:#dc3545">{{ stats.high_priority }}</div><div>HIGH Priority</div></div>
+    <div class="stat"><div class="stat-number" style="color:#fd7e14">{{ stats.medium_priority }}</div><div>MEDIUM Priority</div></div>
+    <div class="stat"><div class="stat-number">{{ stats.ip_count }}</div><div>IP Addresses</div></div>
+    <div class="stat"><div class="stat-number">{{ stats.domain_count }}</div><div>Domains/URLs</div></div>
+</div>
+
+<div>
+    <button id="btnAll" class="filter-active">All</button>
+    <button id="btnHigh">HIGH</button>
+    <button id="btnMedium">MEDIUM</button>
+    <button id="btnLow">LOW</button>
+    <button onclick="exportCSV()" style="background:#28a745; color:white">📎 Export CSV</button>
+</div>
+
+<div class="card">
+    <table id="iocTable">
+        <thead>
+            <tr>
+                <th>Priority</th><th>Type</th><th>Indicator</th><th>Tags</th><th>SOC Action</th><th>Source</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ioc in iocs %}
+            <tr data-priority="{{ ioc.priority }}">
+                <td><span class="{{ ioc.priority|lower }}">{{ ioc.priority }}</span></td>
+                <td>{{ ioc.type }}</td>
+                <td style="font-family:monospace">{{ ioc.value }}</td>
+                <td>{{ ioc.tags[:50] }}</td>
+                <td>{{ ioc.soc_action }}</td>
+                <td>{{ ioc.pulse_name[:35] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const rows = document.querySelectorAll('#iocTable tbody tr');
+    
+    document.getElementById('btnAll').onclick = () => { filter('all'); setActive('btnAll'); };
+    document.getElementById('btnHigh').onclick = () => { filter('HIGH'); setActive('btnHigh'); };
+    document.getElementById('btnMedium').onclick = () => { filter('MEDIUM'); setActive('btnMedium'); };
+    document.getElementById('btnLow').onclick = () => { filter('LOW'); setActive('btnLow'); };
+    
+    function filter(priority) {
+        rows.forEach(row => {
+            if (priority === 'all') row.style.display = '';
+            else row.style.display = row.getAttribute('data-priority') === priority ? '' : 'none';
+        });
+    }
+    
+    function setActive(activeId) {
+        ['btnAll','btnHigh','btnMedium','btnLow'].forEach(id => {
+            const btn = document.getElementById(id);
+            if (id === activeId) btn.classList.add('filter-active');
+            else btn.classList.remove('filter-active');
+        });
+    }
+    
+    function exportCSV() {
+        let csv = 'Priority,Type,Indicator,Tags,SOC Action,Source\n';
+        const visibleRows = Array.from(rows).filter(r => r.style.display !== 'none');
+        visibleRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            csv += Array.from(cells).map(c => `"${c.innerText.replace(/"/g, '""')}"`).join(',') + '\n';
+        });
+        const blob = new Blob([csv], {type: 'text/csv'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'iocs.csv';
+        a.click();
+    }
+</script>
+
+</body>
+</html>

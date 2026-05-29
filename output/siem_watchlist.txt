@@ -1,0 +1,7 @@
+# SOC Watchlist - HIGH Priority IOCs
+# Generated: 2026-05-29 13:35:14
+# Format: TYPE|VALUE|REASON
+
+IPv4|185.130.5.253|malware,trojan
+IPv4|45.142.120.5|c2,malware
+URL|hxxp://malware-site[.]com/payload.exe|trojan,downloader
