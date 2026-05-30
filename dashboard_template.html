@@ -19,6 +19,7 @@
             width: 100%;
             border-collapse: collapse;
             background: white;
+            font-size: 13px;
         }
         th {
             background: #333;
@@ -29,10 +30,43 @@
         td {
             padding: 10px;
             border-bottom: 1px solid #ddd;
+            vertical-align: middle;
         }
-        .high { background: #dc3545; color: white; padding: 3px 8px; border-radius: 3px; display: inline-block; }
-        .medium { background: #fd7e14; color: white; padding: 3px 8px; border-radius: 3px; display: inline-block; }
-        .low { background: #28a745; color: white; padding: 3px 8px; border-radius: 3px; display: inline-block; }
+        .badge-high {
+            background: #dc3545;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 11px;
+            display: inline-block;
+        }
+        .badge-medium {
+            background: #fd7e14;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 11px;
+            display: inline-block;
+        }
+        .badge-low {
+            background: #28a745;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 11px;
+            display: inline-block;
+        }
+        .type-badge {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+        }
         .stats {
             display: flex;
             gap: 15px;
@@ -45,6 +79,7 @@
             border-radius: 8px;
             text-align: center;
             flex: 1;
+            min-width: 100px;
         }
         .stat-number {
             font-size: 28px;
@@ -55,94 +90,219 @@
             margin-right: 10px;
             margin-bottom: 15px;
             cursor: pointer;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 4px;
         }
         .filter-active {
             background: #333;
             color: white;
+            border-color: #333;
+        }
+        .export-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .confidence-bar {
+            width: 60px;
+            background: #e9ecef;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .confidence-bar-fill {
+            height: 8px;
+            border-radius: 4px;
+        }
+        .confidence-score {
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .confidence-high {
+            color: #28a745;
+        }
+        .confidence-medium {
+            color: #fd7e14;
+        }
+        .confidence-low {
+            color: #dc3545;
+        }
+        .ioc-value {
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+        .tags {
+            font-size: 11px;
+            color: #555;
+            max-width: 180px;
+        }
+        .source {
+            font-size: 11px;
+            max-width: 150px;
+        }
+        .mitre {
+            font-size: 11px;
+            font-family: monospace;
+            color: #1e3c72;
+        }
+        .filter-section {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .footer-text {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 20px;
+        }
+        .data-source-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 11px;
         }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h1>🛡️ SOC Threat Intelligence Dashboard</h1>
-    <p>Last updated: {{ stats.last_updated }}</p>
+    <h1>SOC Threat Intelligence Dashboard</h1>
+    <p>Last updated: {{ last_updated }}</p>
+    <p><span class="data-source-badge">{{ data_source }}</span></p>
 </div>
 
 <div class="stats">
-    <div class="stat"><div class="stat-number">{{ stats.total_iocs }}</div><div>Total IOCs</div></div>
-    <div class="stat"><div class="stat-number" style="color:#dc3545">{{ stats.high_priority }}</div><div>HIGH Priority</div></div>
-    <div class="stat"><div class="stat-number" style="color:#fd7e14">{{ stats.medium_priority }}</div><div>MEDIUM Priority</div></div>
-    <div class="stat"><div class="stat-number">{{ stats.ip_count }}</div><div>IP Addresses</div></div>
-    <div class="stat"><div class="stat-number">{{ stats.domain_count }}</div><div>Domains/URLs</div></div>
+    <div class="stat"><div class="stat-number">{{ total_iocs }}</div><div>Total IOCs</div></div>
+    <div class="stat"><div class="stat-number" style="color:#dc3545">{{ high_priority_count }}</div><div>HIGH Priority</div></div>
+    <div class="stat"><div class="stat-number" style="color:#fd7e14">{{ medium_priority_count }}</div><div>MEDIUM Priority</div></div>
+    <div class="stat"><div class="stat-number" style="color:#28a745">{{ high_confidence_count }}</div><div>HIGH Confidence</div></div>
+    <div class="stat"><div class="stat-number">{{ avg_confidence }}%</div><div>Avg Confidence</div></div>
+    <div class="stat"><div class="stat-number">{{ ip_count }}</div><div>IP Addresses</div></div>
+    <div class="stat"><div class="stat-number">{{ domain_count }}</div><div>Domains/URLs</div></div>
 </div>
 
-<div>
-    <button id="btnAll" class="filter-active">All</button>
-    <button id="btnHigh">HIGH</button>
-    <button id="btnMedium">MEDIUM</button>
-    <button id="btnLow">LOW</button>
-    <button onclick="exportCSV()" style="background:#28a745; color:white">📎 Export CSV</button>
+<div class="filter-section">
+    <div class="filter-group">
+        <strong>Priority:</strong>
+        <button id="btnAll" class="filter-active">All</button>
+        <button id="btnHigh">HIGH</button>
+        <button id="btnMedium">MEDIUM</button>
+        <button id="btnLow">LOW</button>
+    </div>
+    <div class="filter-group">
+        <strong>Confidence:</strong>
+        <button id="btnConfAll" class="filter-active">All</button>
+        <button id="btnConfHigh">High (70-100%)</button>
+        <button id="btnConfMedium">Medium (40-69%)</button>
+        <button id="btnConfLow">Low (0-39%)</button>
+    </div>
+    <div class="filter-group">
+        <button id="exportCSVBtn" class="export-btn">Export to CSV</button>
+    </div>
 </div>
 
 <div class="card">
     <table id="iocTable">
         <thead>
             <tr>
-                <th>Priority</th><th>Type</th><th>Indicator</th><th>Tags</th><th>SOC Action</th><th>Source</th>
+                <th>Priority</th>
+                <th>Type</th>
+                <th>Indicator</th>
+                <th>Tags</th>
+                <th>SOC Action</th>
+                <th>Confidence</th>
+                <th>Source</th>
+                <th>MITRE</th>
             </tr>
         </thead>
         <tbody>
-            {% for ioc in iocs %}
-            <tr data-priority="{{ ioc.priority }}">
-                <td><span class="{{ ioc.priority|lower }}">{{ ioc.priority }}</span></td>
-                <td>{{ ioc.type }}</td>
-                <td style="font-family:monospace">{{ ioc.value }}</td>
-                <td>{{ ioc.tags[:50] }}</td>
-                <td>{{ ioc.soc_action }}</td>
-                <td>{{ ioc.pulse_name[:35] }}</td>
-            </tr>
-            {% endfor %}
+            {{ table_rows|safe }}
         </tbody>
     </table>
 </div>
 
+<div class="footer-text">
+    <p>HIGH priority IOCs require immediate blocking | Confidence: High(70-100)=Validated | Medium(40-69)=Suspected | Low(0-39)=Monitor</p>
+</div>
+
 <script>
-    const rows = document.querySelectorAll('#iocTable tbody tr');
+    var rows = document.querySelectorAll('#iocTable tbody tr');
+    var activePriority = 'all';
+    var activeConfidence = 'all';
     
-    document.getElementById('btnAll').onclick = () => { filter('all'); setActive('btnAll'); };
-    document.getElementById('btnHigh').onclick = () => { filter('HIGH'); setActive('btnHigh'); };
-    document.getElementById('btnMedium').onclick = () => { filter('MEDIUM'); setActive('btnMedium'); };
-    document.getElementById('btnLow').onclick = () => { filter('LOW'); setActive('btnLow'); };
-    
-    function filter(priority) {
-        rows.forEach(row => {
-            if (priority === 'all') row.style.display = '';
-            else row.style.display = row.getAttribute('data-priority') === priority ? '' : 'none';
-        });
+    function applyFilters() {
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var priority = row.getAttribute('data-priority');
+            var confidence = row.getAttribute('data-confidence');
+            var priorityMatch = (activePriority === 'all' || priority === activePriority);
+            var confidenceMatch = (activeConfidence === 'all' || confidence === activeConfidence);
+            row.style.display = (priorityMatch && confidenceMatch) ? '' : 'none';
+        }
     }
     
-    function setActive(activeId) {
-        ['btnAll','btnHigh','btnMedium','btnLow'].forEach(id => {
-            const btn = document.getElementById(id);
-            if (id === activeId) btn.classList.add('filter-active');
+    function setActivePriority(activeId) {
+        var ids = ['btnAll', 'btnHigh', 'btnMedium', 'btnLow'];
+        for (var i = 0; i < ids.length; i++) {
+            var btn = document.getElementById(ids[i]);
+            if (ids[i] === activeId) btn.classList.add('filter-active');
             else btn.classList.remove('filter-active');
-        });
+        }
     }
     
-    function exportCSV() {
-        let csv = 'Priority,Type,Indicator,Tags,SOC Action,Source\n';
-        const visibleRows = Array.from(rows).filter(r => r.style.display !== 'none');
-        visibleRows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            csv += Array.from(cells).map(c => `"${c.innerText.replace(/"/g, '""')}"`).join(',') + '\n';
-        });
-        const blob = new Blob([csv], {type: 'text/csv'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'iocs.csv';
-        a.click();
+    function setActiveConfidence(activeId) {
+        var ids = ['btnConfAll', 'btnConfHigh', 'btnConfMedium', 'btnConfLow'];
+        for (var i = 0; i < ids.length; i++) {
+            var btn = document.getElementById(ids[i]);
+            if (ids[i] === activeId) btn.classList.add('filter-active');
+            else btn.classList.remove('filter-active');
+        }
     }
+    
+    document.getElementById('btnAll').onclick = function() { activePriority = 'all'; applyFilters(); setActivePriority('btnAll'); };
+    document.getElementById('btnHigh').onclick = function() { activePriority = 'HIGH'; applyFilters(); setActivePriority('btnHigh'); };
+    document.getElementById('btnMedium').onclick = function() { activePriority = 'MEDIUM'; applyFilters(); setActivePriority('btnMedium'); };
+    document.getElementById('btnLow').onclick = function() { activePriority = 'LOW'; applyFilters(); setActivePriority('btnLow'); };
+    document.getElementById('btnConfAll').onclick = function() { activeConfidence = 'all'; applyFilters(); setActiveConfidence('btnConfAll'); };
+    document.getElementById('btnConfHigh').onclick = function() { activeConfidence = 'HIGH'; applyFilters(); setActiveConfidence('btnConfHigh'); };
+    document.getElementById('btnConfMedium').onclick = function() { activeConfidence = 'MEDIUM'; applyFilters(); setActiveConfidence('btnConfMedium'); };
+    document.getElementById('btnConfLow').onclick = function() { activeConfidence = 'LOW'; applyFilters(); setActiveConfidence('btnConfLow'); };
+    
+    function exportToCSV() {
+        var visibleRows = [];
+        for (var i = 0; i < rows.length; i++) {
+            if (rows[i].style.display !== 'none') visibleRows.push(rows[i]);
+        }
+        var csv = 'Priority,Type,Indicator,Tags,SOC Action,Confidence Score,Confidence Level,Source,MITRE\n';
+        for (var i = 0; i < visibleRows.length; i++) {
+            var cells = visibleRows[i].querySelectorAll('td');
+            csv += '"' + cells[0].innerText.trim() + '","' + cells[1].innerText.trim() + '","' + cells[2].innerText.trim() + '","' + cells[3].innerText.trim() + '","' + cells[4].innerText.trim() + '","' + cells[5].innerText.trim() + '","' + visibleRows[i].getAttribute('data-confidence') + '","' + cells[6].innerText.trim() + '","' + cells[7].innerText.trim() + '"\n';
+        }
+        var blob = new Blob([csv], {type: 'text/csv'});
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'iocs_' + new Date().toISOString().slice(0,19).replace(/:/g, '-') + '.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+    
+    document.getElementById('exportCSVBtn').onclick = exportToCSV;
 </script>
 
 </body>

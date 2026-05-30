@@ -19,6 +19,7 @@
             width: 100%;
             border-collapse: collapse;
             background: white;
+            font-size: 13px;
         }
         th {
             background: #333;
@@ -29,10 +30,43 @@
         td {
             padding: 10px;
             border-bottom: 1px solid #ddd;
+            vertical-align: middle;
         }
-        .high { background: #dc3545; color: white; padding: 3px 8px; border-radius: 3px; display: inline-block; }
-        .medium { background: #fd7e14; color: white; padding: 3px 8px; border-radius: 3px; display: inline-block; }
-        .low { background: #28a745; color: white; padding: 3px 8px; border-radius: 3px; display: inline-block; }
+        .badge-high {
+            background: #dc3545;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 11px;
+            display: inline-block;
+        }
+        .badge-medium {
+            background: #fd7e14;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 11px;
+            display: inline-block;
+        }
+        .badge-low {
+            background: #28a745;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 11px;
+            display: inline-block;
+        }
+        .type-badge {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+        }
         .stats {
             display: flex;
             gap: 15px;
@@ -45,6 +79,7 @@
             border-radius: 8px;
             text-align: center;
             flex: 1;
+            min-width: 100px;
         }
         .stat-number {
             font-size: 28px;
@@ -55,121 +90,687 @@
             margin-right: 10px;
             margin-bottom: 15px;
             cursor: pointer;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 4px;
         }
         .filter-active {
             background: #333;
             color: white;
+            border-color: #333;
+        }
+        .export-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .confidence-bar {
+            width: 60px;
+            background: #e9ecef;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .confidence-bar-fill {
+            height: 8px;
+            border-radius: 4px;
+        }
+        .confidence-score {
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .confidence-high {
+            color: #28a745;
+        }
+        .confidence-medium {
+            color: #fd7e14;
+        }
+        .confidence-low {
+            color: #dc3545;
+        }
+        .ioc-value {
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+        .tags {
+            font-size: 11px;
+            color: #555;
+            max-width: 180px;
+        }
+        .source {
+            font-size: 11px;
+            max-width: 150px;
+        }
+        .mitre {
+            font-size: 11px;
+            font-family: monospace;
+            color: #1e3c72;
+        }
+        .filter-section {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .footer-text {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 20px;
+        }
+        .data-source-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 11px;
         }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h1>🛡️ SOC Threat Intelligence Dashboard</h1>
-    <p>Last updated: 2026-05-29 13:35:14 UTC</p>
+    <h1>SOC Threat Intelligence Dashboard</h1>
+    <p>Last updated: 2026-05-30 13:12:51 UTC</p>
+    <p><span class="data-source-badge">LIVE AlienVault OTX</span></p>
 </div>
 
 <div class="stats">
-    <div class="stat"><div class="stat-number">4</div><div>Total IOCs</div></div>
-    <div class="stat"><div class="stat-number" style="color:#dc3545">3</div><div>HIGH Priority</div></div>
-    <div class="stat"><div class="stat-number" style="color:#fd7e14">1</div><div>MEDIUM Priority</div></div>
-    <div class="stat"><div class="stat-number">2</div><div>IP Addresses</div></div>
-    <div class="stat"><div class="stat-number">1</div><div>Domains/URLs</div></div>
+    <div class="stat"><div class="stat-number">26</div><div>Total IOCs</div></div>
+    <div class="stat"><div class="stat-number" style="color:#dc3545">0</div><div>HIGH Priority</div></div>
+    <div class="stat"><div class="stat-number" style="color:#fd7e14">2</div><div>MEDIUM Priority</div></div>
+    <div class="stat"><div class="stat-number" style="color:#28a745">0</div><div>HIGH Confidence</div></div>
+    <div class="stat"><div class="stat-number">31%</div><div>Avg Confidence</div></div>
+    <div class="stat"><div class="stat-number">0</div><div>IP Addresses</div></div>
+    <div class="stat"><div class="stat-number">26</div><div>Domains/URLs</div></div>
 </div>
 
-<div>
-    <button id="btnAll" class="filter-active">All</button>
-    <button id="btnHigh">HIGH</button>
-    <button id="btnMedium">MEDIUM</button>
-    <button id="btnLow">LOW</button>
-    <button onclick="exportCSV()" style="background:#28a745; color:white">📎 Export CSV</button>
+<div class="filter-section">
+    <div class="filter-group">
+        <strong>Priority:</strong>
+        <button id="btnAll" class="filter-active">All</button>
+        <button id="btnHigh">HIGH</button>
+        <button id="btnMedium">MEDIUM</button>
+        <button id="btnLow">LOW</button>
+    </div>
+    <div class="filter-group">
+        <strong>Confidence:</strong>
+        <button id="btnConfAll" class="filter-active">All</button>
+        <button id="btnConfHigh">High (70-100%)</button>
+        <button id="btnConfMedium">Medium (40-69%)</button>
+        <button id="btnConfLow">Low (0-39%)</button>
+    </div>
+    <div class="filter-group">
+        <button id="exportCSVBtn" class="export-btn">Export to CSV</button>
+    </div>
 </div>
 
 <div class="card">
     <table id="iocTable">
         <thead>
             <tr>
-                <th>Priority</th><th>Type</th><th>Indicator</th><th>Tags</th><th>SOC Action</th><th>Source</th>
+                <th>Priority</th>
+                <th>Type</th>
+                <th>Indicator</th>
+                <th>Tags</th>
+                <th>SOC Action</th>
+                <th>Confidence</th>
+                <th>Source</th>
+                <th>MITRE</th>
             </tr>
         </thead>
         <tbody>
             
-            <tr data-priority="HIGH">
-                <td><span class="high">HIGH</span></td>
-                <td>IPv4</td>
-                <td style="font-family:monospace">185.130.5.253</td>
-                <td>malware,trojan</td>
-                <td>🚨 BLOCK IMMEDIATELY - Create alert rule</td>
-                <td>Emotet C2</td>
+            <tr data-priority="MEDIUM" data-confidence="MEDIUM">
+                <td><span class="badge-medium">MEDIUM</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">https://app.kuse.ai/sharednote/</td>
+                <td class="tags">fake login page, credential harvesting, vendor email comprom</td>
+                <td><span style="color: #fd7e14; font-weight: bold;">MONITOR</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 50%; background: #fd7e14;"></div>
+                        </div>
+                        <span class="confidence-score confidence-medium">50%</span>
+                    </div>
+                </td>
+                <td class="source">Kuse Web App Abused to Host Phishin</td>
+                <td class="mitre">T1566 - Phishing</td>
             </tr>
-            
-            <tr data-priority="MEDIUM">
-                <td><span class="medium">MEDIUM</span></td>
-                <td>DOMAIN</td>
-                <td style="font-family:monospace">evil-domain.com</td>
-                <td>phishing</td>
-                <td>⚠️ MONITOR - Add to watchlist for 7 days</td>
-                <td>Phishing Campaign</td>
+        
+            <tr data-priority="MEDIUM" data-confidence="MEDIUM">
+                <td><span class="badge-medium">MEDIUM</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">https://onlineapp.ooraikaoo.info/?auth2=8rf22euu-2nxkebabDjjILlzldhQq2Pz</td>
+                <td class="tags">fake login page, credential harvesting, vendor email comprom</td>
+                <td><span style="color: #fd7e14; font-weight: bold;">MONITOR</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 50%; background: #fd7e14;"></div>
+                        </div>
+                        <span class="confidence-score confidence-medium">50%</span>
+                    </div>
+                </td>
+                <td class="source">Kuse Web App Abused to Host Phishin</td>
+                <td class="mitre">T1566 - Phishing</td>
             </tr>
-            
-            <tr data-priority="HIGH">
-                <td><span class="high">HIGH</span></td>
-                <td>IPv4</td>
-                <td style="font-family:monospace">45.142.120.5</td>
-                <td>c2,malware</td>
-                <td>🚨 BLOCK IMMEDIATELY - Create alert rule</td>
-                <td>Cobalt Strike</td>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">http://appview.imagetemplate.com/gateless_icon</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
             </tr>
-            
-            <tr data-priority="HIGH">
-                <td><span class="high">HIGH</span></td>
-                <td>URL</td>
-                <td style="font-family:monospace">hxxp://malware-site[.]com/payload.exe</td>
-                <td>trojan,downloader</td>
-                <td>🚨 BLOCK IMMEDIATELY - Create alert rule</td>
-                <td>Malware Distribution</td>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">http://bigfile.jaycloudlab.com/download.php?id=745896</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
             </tr>
-            
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">http://download.birdriver.org/download.php?id=393156</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">http://hdrgdrfes.chickenkiller.com/index.php</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">http://load.erasecloud.n-e.kr/login.php</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">http://load.serverpit.com/fwrite.php</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">http://pipeline.embeddedonline.org/check.php?x-csrf-token=gateless</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">http://pipeline.embeddedonline.org/download3.php?sessid=54126&user-token=gateless</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">http://www.ibizplus.n-e.kr/download.php?id=30382119</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">http://www.ibizplus.n-e.kr/download.php?id=30382120</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">http://www.ibizplus.n-e.kr/download.php?id=30382121</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">https://appview.imagetemplate.com/babymetalsave_icon</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">https://appview.imagetemplate.com/gateless_icon</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">https://bigfile.crabdance.com/recaptcha.html</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">https://conference.birdriver.org/</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">https://download.birdriver.org/download.php?id=393156</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">https://download.birdriver.org/download.php?id=425623</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">https://load.erasecloud.n-e.kr/login.php</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">https://load.serverpit.com/fwrite.php</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">https://pipeline.embeddedonline.org/check.php?x-csrf-token=babymetalsave</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">https://pipeline.embeddedonline.org/check.php?x-csrf-token=gateless</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">https://pipeline.embeddedonline.org/download3.php?sessid=54126&user-token=babymetalsave</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">URL</span></td>
+                <td class="ioc-value">https://www.ibizplus.n-e.kr/install.html</td>
+                <td class="tags">spear phishing, httpspy, webex spoofing, loaddll.dll</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Kimsuky's Advanced Attack Technique</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
+            <tr data-priority="LOW" data-confidence="LOW">
+                <td><span class="badge-low">LOW</span></td>
+                <td><span class="type-badge">DOMAIN</span></td>
+                <td class="ioc-value">abimj.edu.af</td>
+                <td class="tags">sidecopy, xenorat, transparent tribe, apt36</td>
+                <td><span style="color: #28a745; font-weight: bold;">LOG ONLY</span></td>
+                <td>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <div class="confidence-bar">
+                            <div class="confidence-bar-fill" style="width: 30%; background: #dc3545;"></div>
+                        </div>
+                        <span class="confidence-score confidence-low">30%</span>
+                    </div>
+                </td>
+                <td class="source">Operation XENOFISCAL: SideCopy depl</td>
+                <td class="mitre">T1566 - Phishing</td>
+            </tr>
+        
         </tbody>
     </table>
 </div>
 
+<div class="footer-text">
+    <p>HIGH priority IOCs require immediate blocking | Confidence: High(70-100)=Validated | Medium(40-69)=Suspected | Low(0-39)=Monitor</p>
+</div>
+
 <script>
-    const rows = document.querySelectorAll('#iocTable tbody tr');
+    var rows = document.querySelectorAll('#iocTable tbody tr');
+    var activePriority = 'all';
+    var activeConfidence = 'all';
     
-    document.getElementById('btnAll').onclick = () => { filter('all'); setActive('btnAll'); };
-    document.getElementById('btnHigh').onclick = () => { filter('HIGH'); setActive('btnHigh'); };
-    document.getElementById('btnMedium').onclick = () => { filter('MEDIUM'); setActive('btnMedium'); };
-    document.getElementById('btnLow').onclick = () => { filter('LOW'); setActive('btnLow'); };
-    
-    function filter(priority) {
-        rows.forEach(row => {
-            if (priority === 'all') row.style.display = '';
-            else row.style.display = row.getAttribute('data-priority') === priority ? '' : 'none';
-        });
+    function applyFilters() {
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var priority = row.getAttribute('data-priority');
+            var confidence = row.getAttribute('data-confidence');
+            var priorityMatch = (activePriority === 'all' || priority === activePriority);
+            var confidenceMatch = (activeConfidence === 'all' || confidence === activeConfidence);
+            row.style.display = (priorityMatch && confidenceMatch) ? '' : 'none';
+        }
     }
     
-    function setActive(activeId) {
-        ['btnAll','btnHigh','btnMedium','btnLow'].forEach(id => {
-            const btn = document.getElementById(id);
-            if (id === activeId) btn.classList.add('filter-active');
+    function setActivePriority(activeId) {
+        var ids = ['btnAll', 'btnHigh', 'btnMedium', 'btnLow'];
+        for (var i = 0; i < ids.length; i++) {
+            var btn = document.getElementById(ids[i]);
+            if (ids[i] === activeId) btn.classList.add('filter-active');
             else btn.classList.remove('filter-active');
-        });
+        }
     }
     
-    function exportCSV() {
-        let csv = 'Priority,Type,Indicator,Tags,SOC Action,Source\n';
-        const visibleRows = Array.from(rows).filter(r => r.style.display !== 'none');
-        visibleRows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            csv += Array.from(cells).map(c => `"${c.innerText.replace(/"/g, '""')}"`).join(',') + '\n';
-        });
-        const blob = new Blob([csv], {type: 'text/csv'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'iocs.csv';
-        a.click();
+    function setActiveConfidence(activeId) {
+        var ids = ['btnConfAll', 'btnConfHigh', 'btnConfMedium', 'btnConfLow'];
+        for (var i = 0; i < ids.length; i++) {
+            var btn = document.getElementById(ids[i]);
+            if (ids[i] === activeId) btn.classList.add('filter-active');
+            else btn.classList.remove('filter-active');
+        }
     }
+    
+    document.getElementById('btnAll').onclick = function() { activePriority = 'all'; applyFilters(); setActivePriority('btnAll'); };
+    document.getElementById('btnHigh').onclick = function() { activePriority = 'HIGH'; applyFilters(); setActivePriority('btnHigh'); };
+    document.getElementById('btnMedium').onclick = function() { activePriority = 'MEDIUM'; applyFilters(); setActivePriority('btnMedium'); };
+    document.getElementById('btnLow').onclick = function() { activePriority = 'LOW'; applyFilters(); setActivePriority('btnLow'); };
+    document.getElementById('btnConfAll').onclick = function() { activeConfidence = 'all'; applyFilters(); setActiveConfidence('btnConfAll'); };
+    document.getElementById('btnConfHigh').onclick = function() { activeConfidence = 'HIGH'; applyFilters(); setActiveConfidence('btnConfHigh'); };
+    document.getElementById('btnConfMedium').onclick = function() { activeConfidence = 'MEDIUM'; applyFilters(); setActiveConfidence('btnConfMedium'); };
+    document.getElementById('btnConfLow').onclick = function() { activeConfidence = 'LOW'; applyFilters(); setActiveConfidence('btnConfLow'); };
+    
+    function exportToCSV() {
+        var visibleRows = [];
+        for (var i = 0; i < rows.length; i++) {
+            if (rows[i].style.display !== 'none') visibleRows.push(rows[i]);
+        }
+        var csv = 'Priority,Type,Indicator,Tags,SOC Action,Confidence Score,Confidence Level,Source,MITRE\n';
+        for (var i = 0; i < visibleRows.length; i++) {
+            var cells = visibleRows[i].querySelectorAll('td');
+            csv += '"' + cells[0].innerText.trim() + '","' + cells[1].innerText.trim() + '","' + cells[2].innerText.trim() + '","' + cells[3].innerText.trim() + '","' + cells[4].innerText.trim() + '","' + cells[5].innerText.trim() + '","' + visibleRows[i].getAttribute('data-confidence') + '","' + cells[6].innerText.trim() + '","' + cells[7].innerText.trim() + '"\n';
+        }
+        var blob = new Blob([csv], {type: 'text/csv'});
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'iocs_' + new Date().toISOString().slice(0,19).replace(/:/g, '-') + '.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+    
+    document.getElementById('exportCSVBtn').onclick = exportToCSV;
 </script>
 
 </body>
