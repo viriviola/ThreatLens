@@ -1,4 +1,4 @@
-# Threat Intelligence to SOC Dashboard
+# ThreatLens - Threat Intelligence to SOC Dashboard
 
 ![Python](https://img.shields.io/badge/Python-3.7+-blue)
 ![Threat Intelligence](https://img.shields.io/badge/Threat%20Intelligence-Live%20IOC%20Feeds-red)
