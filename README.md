@@ -136,7 +136,7 @@ AlienVault OTX
 ## Project Structure
 
 ```text
-ti-soc-dashboard/
+ThreatLens/
 ├── fetch_ti.py
 ├── dashboard_template.html
 ├── requirements.txt
@@ -185,8 +185,8 @@ This project showcases capabilities across multiple cybersecurity disciplines.
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ti-soc-dashboard.git
-cd ti-soc-dashboard
+git clone https://github.com/YOUR_USERNAME/ThreatLens.git
+cd ThreatLens
 ```
 
 ### Install Dependencies
